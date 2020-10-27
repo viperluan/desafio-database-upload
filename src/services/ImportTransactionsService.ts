@@ -7,8 +7,6 @@ import Category from '../models/Category';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
 
-const parseConfig = csvParse({ from_line: 2 });
-
 interface TransactionCSV {
   title: string;
   type: 'income' | 'outcome';
@@ -18,10 +16,13 @@ interface TransactionCSV {
 
 class ImportTransactionsService {
   async execute(filePath: string): Promise<Transaction[]> {
+    const transactionsReadStream = fs.createReadStream(filePath);
+
     const transactionsRepository = getCustomRepository(TransactionsRepository);
     const categoriesRepository = getRepository(Category);
 
-    const transactionsReadStream = fs.createReadStream(filePath);
+    const parseConfig = csvParse({ from_line: 2 });
+
     const transactionsCSV = transactionsReadStream.pipe(parseConfig);
 
     const transactions: TransactionCSV[] = [];
